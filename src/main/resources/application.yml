@@ -5,9 +5,18 @@ eureka:
   client:
     register-with-eureka: false
     fetch-registry: true
+
+# logging configuration
 logging:
   level:
     com:
       netflix:
         eureka: OFF
         discovery: OFF
+
+spring:
+  security:
+    # spring security basic authentication configuration
+    user:
+      name: netflix
+      password: eureka
