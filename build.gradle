@@ -1,7 +1,14 @@
+// docker plugin configuration
+//buildscript {
+//    dependencies {
+//        classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.25.0"
+//    }
+//}
 plugins {
     id 'org.springframework.boot' version '2.3.4.RELEASE'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'java'
+    id 'com.palantir.docker' version '0.25.0'
 }
 
 group = 'com.zeeroiq'
@@ -23,6 +30,70 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
+}
+
+// docker: plugin apply
+apply plugin: 'com.palantir.docker'
+// docker: new task docker
+//docker {
+//    dependsOn build
+//    name "${project.name}"
+//    files bootJar.archivePath
+//    buildArgs(['JAR_FILE': "${bootJar.archiveName}"])
+//}
+
+
+//docker {
+//    name "${project.name}:${project.version}"
+//    dockerfile file('src/main/docker/Dockerfile')
+//    copySpec.from(jar).rename(".*", "app.jar")
+//    buildArgs(['JAR_FILE': "app.jar"])
+//}
+// bootJar {
+//  layered {
+//    enabled = true
+//
+//    application {
+//      intoLayer("spring-boot-loader") {
+//        include "org/springframework/boot/loader/**"
+//      }
+//      intoLayer("application")
+//    }
+//
+//    dependencies {
+//      intoLayer("snapshot-dependencies") {
+//        include "*:*:*SNAPSHOT"
+//      }
+//      intoLayer("dependencies")
+//    }
+//
+//    layerOrder = ["dependencies", "spring-boot-loader", "snapshot-dependencies", "application"]
+//  }
+//}
+
+
+//bootJar {
+//    layered()
+//}
+
+// enabling the layered boot jar mode
+// below properties are enabled by default
+bootJar {
+    layered {
+        enabled = true
+        includeLayerTools = true
+    }
+}
+// String imageName = "somename:$version"
+// docker task configuration
+docker {
+    name "${project.name}:${project.version}"
+    tag project.name, project.version as String
+    dockerfile file('src/main/docker/Dockerfile')
+    files "build/libs/${bootJar.archiveFileName.get()}"
+    buildArgs([JAR_FILE: bootJar.archiveFileName.get()])
+    labels(['project':project.name])
+    noCache true
 }
 
 dependencyManagement {
