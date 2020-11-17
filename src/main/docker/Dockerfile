@@ -1,6 +1,5 @@
 FROM openjdk:11-jre-slim as builder
 WORKDIR application
-#ARG JAR_FILE=build/libs/${JAR_FILE}
 ARG JAR_FILE
 ADD ${JAR_FILE} ${JAR_FILE}
 RUN java -Djarmode=layertools -jar ${JAR_FILE} extract
